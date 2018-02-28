@@ -6,6 +6,7 @@
   "author": "BigCommerce",
   "license": "MIT",
   "dependencies": {
+    "@bigcommerce/checkout-sdk": "git+ssh://git@github.com:bigcommerce/checkout-sdk-js.git",
     "@bigcommerce/stencil-utils": "^1.1.2",
     "async": "^2.5.0",
     "babel-polyfill": "^6.26.0",
