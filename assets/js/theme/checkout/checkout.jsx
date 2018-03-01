@@ -3,6 +3,7 @@ import { createCheckoutService } from '@bigcommerce/checkout-sdk';
 import Snackbar from 'material-ui/Snackbar';
 import Cart from './cart';
 import Customer from './customer';
+import Shipping from './shipping';
 
 export default class CheckoutComponent extends React.Component {
     constructor(props) {
@@ -14,6 +15,7 @@ export default class CheckoutComponent extends React.Component {
 
     componentDidMount() {
         this.service.loadCheckout()
+            .then(() => this.service.loadShippingCountries())
             .then(() => this.setState({ isLoading: false }));
 
         this.subscriber = this.service.subscribe((state) => {
@@ -30,13 +32,21 @@ export default class CheckoutComponent extends React.Component {
 
         return (
             <section>
-                <Cart cart={ checkout.getCart() } />
+                <Cart cart={ checkout.getCart() }/>
 
                 <Customer
                     customer={ checkout.getCustomer() }
                     error={ errors.getSignInError() }
-                    onSignIn={ (...args) => this._handleSignIn(...args) }
-                    onSignOut={ (...args) => this._handleSignOut(...args) } />
+                    onSignIn={(...args) => this._handleSignIn(...args)}
+                    onSignOut={(...args) => this._handleSignOut(...args)}/>
+
+                <Shipping
+                    address={ checkout.getShippingAddress() }
+                    countries={ checkout.getShippingCountries() }
+                    options={ checkout.getShippingOptions() }
+                    selectedOptionId={ checkout.getSelectedShippingOption() ? checkout.getSelectedShippingOption().id : '' }
+                    onSelect={ (...args) => this._handleSelectShippingOption(...args) }
+                    onUpdate={ (...args) => this._handleUpdateShippingAddress(...args) } />
             </section>
         );
     }
@@ -44,9 +54,9 @@ export default class CheckoutComponent extends React.Component {
     _renderLoadingState() {
         return (
             <Snackbar
-                anchorOrigin={ { vertical: 'top', horizontal: 'center' } }
-                open={ true }
-                message="Loading..." />
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                open={true}
+                message="Loading..."/>
         );
     }
 
@@ -56,5 +66,13 @@ export default class CheckoutComponent extends React.Component {
 
     _handleSignOut() {
         this.service.signOutCustomer();
+    }
+
+    _handleSelectShippingOption(addressId, optionId) {
+        this.service.selectShippingOption(addressId, optionId, {});
+    }
+
+    _handleUpdateShippingAddress(address) {
+        this.service.updateShippingAddress(address);
     }
 }
