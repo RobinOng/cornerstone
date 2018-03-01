@@ -2,6 +2,7 @@ import React from 'react';
 import { createCheckoutService } from '@bigcommerce/checkout-sdk';
 import Snackbar from 'material-ui/Snackbar';
 import Cart from './cart';
+import Customer from './customer';
 
 export default class CheckoutComponent extends React.Component {
     constructor(props) {
@@ -25,11 +26,17 @@ export default class CheckoutComponent extends React.Component {
             return this._renderLoadingState();
         }
 
-        const { checkout } = this.service.getState();
+        const { checkout, errors } = this.service.getState();
 
         return (
             <section>
                 <Cart cart={ checkout.getCart() } />
+
+                <Customer
+                    customer={ checkout.getCustomer() }
+                    error={ errors.getSignInError() }
+                    onSignIn={ (...args) => this._handleSignIn(...args) }
+                    onSignOut={ (...args) => this._handleSignOut(...args) } />
             </section>
         );
     }
@@ -41,5 +48,13 @@ export default class CheckoutComponent extends React.Component {
                 open={ true }
                 message="Loading..." />
         );
+    }
+
+    _handleSignIn(credentials) {
+        this.service.signInCustomer(credentials);
+    }
+
+    _handleSignOut() {
+        this.service.signOutCustomer();
     }
 }
