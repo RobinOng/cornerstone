@@ -4,13 +4,21 @@ import Snackbar from 'material-ui/Snackbar';
 import Billing from './billing';
 import Cart from './cart';
 import Customer from './customer';
+import Payment from './payment';
 import Shipping from './shipping';
 
 export default class CheckoutComponent extends React.Component {
     constructor(props) {
         super(props);
 
-        this.service = createCheckoutService();
+        this.service = createCheckoutService({
+            config: {
+                bigpayBaseUrl: 'https://bigpay.integration.zone',
+                storeHash: '7xcbg28tsc',
+                storeId: 12077240,
+                storeName: 'robin.ong+1521680812 testsworthy',
+            },
+        });
         this.state = { isLoading: true };
     }
 
@@ -19,6 +27,7 @@ export default class CheckoutComponent extends React.Component {
             .then(() => this.service.loadShippingCountries())
             .then(() => this.service.loadShippingOptions())
             .then(() => this.service.loadBillingCountries())
+            .then(() => this.service.loadPaymentMethods())
             .then(() => this.setState({ isLoading: false }));
 
         this.subscriber = this.service.subscribe((state) => {
@@ -55,6 +64,12 @@ export default class CheckoutComponent extends React.Component {
                     address={ checkout.getBillingAddress() }
                     countries={ checkout.getBillingCountries() }
                     onUpdate={ (...args) => this._handleUpdateBillingAddress(...args) } />
+
+                <Payment
+                    methods={ checkout.getPaymentMethods() }
+                    error={ errors.getSubmitOrderError() }
+                    onChange={ (...args) => this._handlePaymentMethodChange(...args) }
+                    onSubmit={ (...args) => this._handleSubmitPayment(...args) } />
             </section>
         );
     }
@@ -86,5 +101,21 @@ export default class CheckoutComponent extends React.Component {
 
     _handleUpdateBillingAddress(address) {
         this.service.updateBillingAddress(address);
+    }
+
+    _handleSubmitPayment(name, gateway, paymentData) {
+        const payload = {
+            payment: {
+                name,
+                gateway,
+                paymentData,
+            },
+        };
+
+        this.service.submitOrder(payload);
+    }
+
+    _handlePaymentMethodChange(name, gateway) {
+        this.service.initializePaymentMethod(name, gateway);
     }
 }
