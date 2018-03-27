@@ -112,7 +112,11 @@ export default class CheckoutComponent extends React.Component {
             },
         };
 
-        this.service.submitOrder(payload);
+        this.service.submitOrder(payload)
+            .then(({ checkout }) => {
+                const { storeConfig } = checkout.getConfig();
+                window.location.href = storeConfig.links.orderConfirmationLink;
+            });
     }
 
     _handlePaymentMethodChange(name, gateway) {
