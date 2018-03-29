@@ -3,7 +3,7 @@ import Button from 'material-ui/Button';
 import Typography from 'material-ui/Typography';
 import Address from './address';
 
-export default class BillingComponent extends React.Component {
+export default class BillingComponent extends React.PureComponent {
     render() {
         return (
             <form onSubmit={ (...args) => this._handleSubmit(...args) } noValidate>

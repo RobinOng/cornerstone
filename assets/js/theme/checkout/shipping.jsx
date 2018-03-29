@@ -4,7 +4,7 @@ import Typography from 'material-ui/Typography';
 import Address from './address';
 import ShippingOptions from './shipping-options';
 
-export default class ShippingComponent extends React.Component {
+export default class ShippingComponent extends React.PureComponent {
     constructor(props) {
         super(props);
 
@@ -13,9 +13,9 @@ export default class ShippingComponent extends React.Component {
         };
     }
 
-    componentWillReceiveProps({ selectedOptionId }) {
-        if (this.props.selectedOptionId !== selectedOptionId) {
-            this.setState({ selectedOptionId });
+    componentDidMount() {
+        if (this.props.selectedOptionId !== this.state.selectedOptionId) {
+            this.setState({ selectedOptionId: this.props.selectedOptionId });
         }
     }
 

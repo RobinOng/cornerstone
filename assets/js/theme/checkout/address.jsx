@@ -5,44 +5,7 @@ import Input, { InputLabel } from 'material-ui/Input';
 import Select from 'material-ui/Select';
 import TextField from 'material-ui/TextField';
 
-function ProvinceField(props) {
-    if (props.country && !isEmpty(props.country.subdivisions)) {
-        return (
-            <FormControl>
-                <InputLabel htmlFor="province-input">
-                    State
-                </InputLabel>
-
-                <Select
-                    value={ props.provinceCode || '' }
-                    onChange={ props.onCodeChange }
-                    input={ <Input id="province-input" /> }
-                    autoComplete="address-level1"
-                    native>
-                    <option value="" />
-                    { props.country.subdivisions.map((subdivision) => (
-                        <option
-                            value={ subdivision.code }
-                            key={ subdivision.code }>
-                            { subdivision.name }
-                        </option>
-                    )) }
-                </Select>
-            </FormControl>
-        );
-    }
-
-    return (
-        <TextField
-            label="State"
-            value={ props.province || '' }
-            onChange={ props.onChange }
-            autoComplete="address-level1"
-            margin="normal" />
-    );
-}
-
-export default class AddressComponent extends React.Component {
+export default class AddressComponent extends React.PureComponent {
     constructor(props) {
         super(props);
 
@@ -62,13 +25,14 @@ export default class AddressComponent extends React.Component {
         };
     }
 
-    componentWillReceiveProps({ address = {} }) {
-        if (this.props.address !== address) {
-            this.setState({ address });
+    componentDidMount() {
+        if (this.props.address !== this.state.address) {
+            this.setState({ address: this.props.address });
         }
     }
 
     render() {
+
         return (
             <div>
                 <FormControl>
@@ -171,4 +135,41 @@ export default class AddressComponent extends React.Component {
             this.props.onChange(address);
         };
     }
+}
+
+function ProvinceField(props) {
+    if (props.country && !isEmpty(props.country.subdivisions)) {
+        return (
+            <FormControl>
+                <InputLabel>
+                    State
+                </InputLabel>
+
+                <Select
+                    value={ props.provinceCode || '' }
+                    onChange={ props.onCodeChange }
+                    input={ <Input/> }
+                    autoComplete="address-level1"
+                    native>
+                    <option value="" />
+                    { props.country.subdivisions.map((subdivision) => (
+                        <option
+                            value={ subdivision.code }
+                            key={ subdivision.code }>
+                            { subdivision.name }
+                        </option>
+                    )) }
+                </Select>
+            </FormControl>
+        );
+    }
+
+    return (
+        <TextField
+            label="State"
+            value={ props.province || '' }
+            onChange={ props.onChange }
+            autoComplete="address-level1"
+            margin="normal" />
+    );
 }

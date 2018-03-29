@@ -6,7 +6,7 @@ import Radio from 'material-ui/Radio';
 import Typography from 'material-ui/Typography';
 import PaymentForm from './payment-form';
 
-export default class PaymentComponent extends React.Component {
+export default class PaymentComponent extends React.PureComponent {
     constructor(props) {
         super(props);
 
@@ -17,21 +17,6 @@ export default class PaymentComponent extends React.Component {
         };
     }
 
-    getErrors({ body = {} } = {}) {
-        const out = [];
-
-        if (body && body.detail) {
-            const { detail: message } = body;
-            out.push({ message });
-        }
-
-        if (body.errors && body.errors.length) {
-            out.push.apply(out, body.errors);
-        }
-
-        return out;
-    }
-
     render() {
         return (
             <form onSubmit={ (...args) => this._handleSubmit(...args) } noValidate>
@@ -39,29 +24,26 @@ export default class PaymentComponent extends React.Component {
                     Payment
                 </Typography>
 
-                {
-                    this.getErrors(this.props.error)
-                        .map((error, key) => (<SnackbarContent key={ key } message={ error.message } />))
+                { this.props.errors &&
+                    <SnackbarContent message={ this.props.errors.message } />
                 }
 
                 <List>
                     { this.props.methods.map(method => (
                         <ListItem
                             key={ method.id }
-                            onClick={ () => this._handleMethodSelect(method.id, method.gateway) }
+                            onClick={ () => this._handleMethodSelect(method.id, method.gateway, method.type) }
                             button>
-                            <Radio
-                                checked={ this.state.selectedMethodId === method.id }
-                                disableRipple />
+                            <Radio checked={ this.state.selectedMethodId === method.id } />
                             <ListItemText primary={ method.config.displayName } />
                         </ListItem>
                     )) }
                 </List>
 
-                { this.state.selectedMethodId &&
+                { this.state.shouldShowPaymentForm &&
                     <PaymentForm
                         creditCard={ this.state.paymentData }
-                        onChange={ (creditCard) => this._handleCreditCardChange(creditCard) } />
+                        onChange={ (paymentData) => this.setState({ paymentData }) } />
                 }
 
                 <Button type="submit">
@@ -71,17 +53,14 @@ export default class PaymentComponent extends React.Component {
         );
     }
 
-    _handleMethodSelect(methodId, gateway) {
+    _handleMethodSelect(id, gateway, type) {
         this.setState({
-            selectedMethodId: methodId,
+            selectedMethodId: id,
             selectedMethodGateway: gateway,
+            shouldShowPaymentForm: id && type !== 'PAYMENT_TYPE_OFFLINE',
         });
 
-        this.props.onChange(methodId, gateway);
-    }
-
-    _handleCreditCardChange(paymentData) {
-        this.setState({ paymentData });
+        this.props.onChange(id, gateway);
     }
 
     _handleSubmit(event) {

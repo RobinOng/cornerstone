@@ -5,7 +5,7 @@ import Divider from 'material-ui/Divider';
 import List, { ListItem, ListItemText, ListItemSecondaryAction } from 'material-ui/List';
 import Typography from 'material-ui/Typography';
 
-export default class CartComponent extends React.Component {
+export default class CartComponent extends React.PureComponent {
     render() {
         return (
             <div>

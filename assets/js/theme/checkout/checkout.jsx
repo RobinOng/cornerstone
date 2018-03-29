@@ -7,7 +7,7 @@ import Customer from './customer';
 import Payment from './payment';
 import Shipping from './shipping';
 
-export default class CheckoutComponent extends React.Component {
+export default class CheckoutComponent extends React.PureComponent {
     constructor(props) {
         super(props);
 
@@ -19,88 +19,77 @@ export default class CheckoutComponent extends React.Component {
                 storeName: 'robin.ong+1521680812 testsworthy',
             },
         });
-        this.state = { isLoading: true };
+
+        this.state = { isFirstLoad: true };
     }
 
     componentDidMount() {
-        this.service.loadCheckout()
-            .then(() => this.service.loadShippingCountries())
-            .then(() => this.service.loadShippingOptions())
-            .then(() => this.service.loadBillingCountries())
-            .then(() => this.service.loadPaymentMethods())
-            .then(() => this.setState({ isLoading: false }));
+        Promise.all([
+            this.service.loadCheckout(),
+            this.service.loadShippingCountries(),
+            this.service.loadShippingOptions(),
+            this.service.loadBillingCountries(),
+            this.service.loadPaymentMethods(),
+        ]).then(() => this.setState({ isFirstLoad: false }));
 
-        this.subscriber = this.service.subscribe((state) => {
+        this.unsubscribe = this.service.subscribe((state) => {
             this.setState(state);
         });
     }
 
-    render() {
-        if (this.state.isLoading) {
-            return this._renderLoadingState();
-        }
+    componentWillUnmount() {
+        this.unsubscribe();
+    }
 
-        const { checkout, errors } = this.service.getState();
+    render() {
+        const { checkout, errors, statuses } = this.service.getState();
+
+        if (this.state.isFirstLoad) {
+            return (
+                <Snackbar
+                    anchorOrigin={ { vertical: 'top', horizontal: 'center' } }
+                    open={ true }
+                    message="Loading..."/>
+            );
+        }
 
         return (
             <section>
+                { statuses.isPending() &&
+                    <Snackbar
+                        anchorOrigin={ { vertical: 'top', horizontal: 'center' } }
+                        open={ true }
+                        message="Loading..."/>
+                }
+
                 <Cart cart={ checkout.getCart() }/>
 
                 <Customer
                     customer={ checkout.getCustomer() }
                     error={ errors.getSignInError() }
-                    onSignIn={(...args) => this._handleSignIn(...args)}
-                    onSignOut={(...args) => this._handleSignOut(...args)}/>
+                    onSignIn={ (credentials) => this.service.signInCustomer(credentials) }
+                    onSignOut={ () => this.service.signOutCustomer() }/>
 
                 <Shipping
                     address={ checkout.getShippingAddress() }
                     countries={ checkout.getShippingCountries() }
                     options={ checkout.getShippingOptions() }
                     selectedOptionId={ checkout.getSelectedShippingOption() ? checkout.getSelectedShippingOption().id : '' }
-                    onSelect={ (...args) => this._handleSelectShippingOption(...args) }
-                    onUpdate={ (...args) => this._handleUpdateShippingAddress(...args) } />
+                    onSelect={ (addressId, optionId) => this.service.selectShippingOption(addressId, optionId) }
+                    onUpdate={ (address) => this.service.updateShippingAddress(address) } />
 
                 <Billing
                     address={ checkout.getBillingAddress() }
                     countries={ checkout.getBillingCountries() }
-                    onUpdate={ (...args) => this._handleUpdateBillingAddress(...args) } />
+                    onUpdate={ (address) => this.service.updateBillingAddress(address) } />
 
                 <Payment
                     methods={ checkout.getPaymentMethods() }
-                    error={ errors.getSubmitOrderError() }
-                    onChange={ (...args) => this._handlePaymentMethodChange(...args) }
+                    errors={ errors.getSubmitOrderError() }
+                    onChange={ (name, gateway) => this.service.initializePaymentMethod(name, gateway) }
                     onSubmit={ (...args) => this._handleSubmitPayment(...args) } />
             </section>
         );
-    }
-
-    _renderLoadingState() {
-        return (
-            <Snackbar
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                open={true}
-                message="Loading..."/>
-        );
-    }
-
-    _handleSignIn(credentials) {
-        this.service.signInCustomer(credentials);
-    }
-
-    _handleSignOut() {
-        this.service.signOutCustomer();
-    }
-
-    _handleSelectShippingOption(addressId, optionId) {
-        this.service.selectShippingOption(addressId, optionId, {});
-    }
-
-    _handleUpdateShippingAddress(address) {
-        this.service.updateShippingAddress(address);
-    }
-
-    _handleUpdateBillingAddress(address) {
-        this.service.updateBillingAddress(address);
     }
 
     _handleSubmitPayment(name, gateway, paymentData) {
@@ -117,9 +106,5 @@ export default class CheckoutComponent extends React.Component {
                 const { storeConfig } = checkout.getConfig();
                 window.location.href = storeConfig.links.orderConfirmationLink;
             });
-    }
-
-    _handlePaymentMethodChange(name, gateway) {
-        this.service.initializePaymentMethod(name, gateway);
     }
 }

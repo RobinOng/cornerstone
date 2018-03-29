@@ -4,7 +4,7 @@ import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
 import Typography from 'material-ui/Typography';
 
-export default class CustomerComponent extends React.Component {
+export default class CustomerComponent extends React.PureComponent {
     constructor(props) {
         super(props);
 
@@ -12,15 +12,6 @@ export default class CustomerComponent extends React.Component {
             email: '',
             password: '',
         };
-    }
-
-    componentWillReceiveProps({ customer }) {
-        if (this.props.customer !== customer) {
-            this.setState({
-                email: customer.email || '',
-                password: '',
-            });
-        }
     }
 
     render() {
@@ -32,7 +23,7 @@ export default class CustomerComponent extends React.Component {
 
                 { this.props.error && <SnackbarContent message={ this.props.error.body.detail } /> }
 
-                {this.props.customer.isGuest &&
+                { this.props.customer.isGuest &&
                     <TextField
                         label="Email"
                         type="email"
@@ -51,13 +42,13 @@ export default class CustomerComponent extends React.Component {
                         margin="normal" />
                 }
 
-                {this.props.customer.isGuest &&
+                { this.props.customer.isGuest &&
                     <Button type="submit">
                         Sign in
                     </Button>
                 }
 
-                {this.props.customer.isGuest === false &&
+                { this.props.customer.isGuest === false &&
                     <Typography type="display2" gutterBottom>
                         You are signed in as { this.props.customer.email }
                     </Typography>

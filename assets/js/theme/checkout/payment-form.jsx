@@ -1,9 +1,7 @@
 import React from 'react';
 import TextField from 'material-ui/TextField';
-import { CvvMask } from './cvv-mask';
-import { MonthYearMask } from './month-year-mask';
 
-export default class PaymentFormComponent extends React.Component {
+export default class PaymentFormComponent extends React.PureComponent {
     constructor(props) {
         super(props);
 
@@ -16,19 +14,10 @@ export default class PaymentFormComponent extends React.Component {
                     month: '',
                     year: '',
                 },
-                ccType: 'visa',
+                ccType: '',
             },
-            expiryDate: '',
+            expiryDate: '/',
         };
-    }
-
-    componentWillReceiveProps({ creditCard = {} }) {
-        if (this.props.creditCard !== creditCard) {
-            const { month, year } = creditCard.ccExpiry;
-            const expiryDate = `${month}/${year}`;
-
-            this.setState({ creditCard, expiryDate });
-        }
     }
 
     render() {
@@ -36,7 +25,7 @@ export default class PaymentFormComponent extends React.Component {
             <div>
                 <TextField
                     label="Credit Card Number"
-                    value={ this.state.creditCard.ccNumber || '' }
+                    value={ this.state.creditCard.ccNumber }
                     onChange={ this._handleCreditCardChange('ccNumber') }
                     autoComplete="cc-number"
                     margin="normal"
@@ -44,8 +33,7 @@ export default class PaymentFormComponent extends React.Component {
 
                 <TextField
                     label="Expiration"
-                    InputProps={ { inputComponent: MonthYearMask } }
-                    value={ this.state.expiryDate || '' }
+                    value={ this.state.expiryDate }
                     onChange={ (event) => this._handleExpiryChange(event) }
                     autoComplete="cc-exp"
                     margin="normal"
@@ -53,7 +41,7 @@ export default class PaymentFormComponent extends React.Component {
 
                 <TextField
                     label="Name on card"
-                    value={ this.state.creditCard.ccName || '' }
+                    value={ this.state.creditCard.ccName }
                     onChange={ this._handleCreditCardChange('ccName') }
                     autoComplete="cc-name"
                     margin="normal"
@@ -61,8 +49,7 @@ export default class PaymentFormComponent extends React.Component {
 
                 <TextField
                     label="CVV"
-                    InputProps={ { inputComponent: CvvMask } }
-                    value={ this.state.creditCard.ccCvv || '' }
+                    value={ this.state.creditCard.ccCvv }
                     onChange={ this._handleCreditCardChange('ccCvv') }
                     autoComplete="cc-cvv"
                     margin="normal"
