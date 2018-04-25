@@ -1,5 +1,5 @@
 import PageManager from './page-manager';
-import Checkout from './checkout/checkout';
+import Checkout from '@bigcommerce/checkout-sdk-example';
 import React from 'react';
 import ReactDOM from 'react-dom';
 

@@ -7,6 +7,7 @@
   "license": "MIT",
   "dependencies": {
     "@bigcommerce/checkout-sdk": "git+ssh://git@github.com/bigcommerce/checkout-sdk-js.git",
+    "@bigcommerce/checkout-sdk-example":  "git+ssh://git@github.com/bigcommerce/checkout-sdk-js-example.git#css",
     "@bigcommerce/stencil-utils": "^1.1.2",
     "accounting": "^0.4.1",
     "async": "^2.5.0",
