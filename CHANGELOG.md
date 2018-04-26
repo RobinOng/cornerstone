@@ -1,8 +1,19 @@
 # Changelog
 
 ## Draft
+- Fix empty object issue in app.js [#1204](https://github.com/bigcommerce/cornerstone/pull/1204)
+- Fix product layout when shop by price disabled [#1205](https://github.com/bigcommerce/cornerstone/pull/1205)
+- Fix brands import statement in app.js [#1202](https://github.com/bigcommerce/cornerstone/pull/1202)
+- Fix broken 403/404 page search box in mobile [#1203](https://github.com/bigcommerce/cornerstone/pull/1203)
+
+## 1.16.0 (2018-04-12)
+- Add representation for products and variants with retail price that has sale price. [#1195](https://github.com/bigcommerce/cornerstone/pull/1195) 
+- Fix but in quickview related to grabbing default prices for products with no default selection. [#1197](https://github.com/bigcommerce/cornerstone/pull/1197)
+
+## 1.15.0 (2018-04-04)
 - Fix image dimensions on AMP pages. [#1192](https://github.com/bigcommerce/cornerstone/pull/1192)
 - Remove AMP quick-search. [#1191](https://github.com/bigcommerce/cornerstone/pull/1191)
+- Add head.scripts reference to checkout & order_confirmation pages [#1158](https://github.com/bigcommerce/cornerstone/pull/1158)
 
 ## 1.14.0 (2018-03-12)
 - Fix product options unhiding indexing issue. [#1176](https://github.com/bigcommerce/cornerstone/pull/1176)
@@ -25,8 +36,6 @@
 - Add support in Cornerstone to consume AMP ID [#1155](https://github.com/bigcommerce/cornerstone/pull/1155)
 - Fix option selection reset bug when a variation is out of stock [#1160](https://github.com/bigcommerce/cornerstone/pull/1160)
 - Fix easyzoom preventing page scrolling on mobile [#1164](https://github.com/bigcommerce/cornerstone/pull/1164)
-
-- Add head.scripts reference to checkout & order_confirmation pages [#1158](https://github.com/bigcommerce/cornerstone/pull/1158)
 
 ## 1.12.1 (2018-01-23)
 - Fix event delegation error [#1151](https://github.com/bigcommerce/cornerstone/pull/1151)

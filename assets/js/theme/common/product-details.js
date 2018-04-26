@@ -41,7 +41,11 @@ export default class ProductDetails {
                 const attributesData = response.data || {};
                 const attributesContent = response.content || {};
                 this.updateProductAttributes(attributesData);
-                this.updateView(attributesData, attributesContent);
+                if (hasDefaultOptions) {
+                    this.updateView(attributesData, attributesContent);
+                } else {
+                    this.updateDefaultAttributesForOOS(attributesData);
+                }
             });
         } else {
             this.updateProductAttributes(productAttributesData);
@@ -61,9 +65,30 @@ export default class ProductDetails {
     getViewModel($scope) {
         return {
             $priceWithTax: $('[data-product-price-with-tax]', $scope),
-            $rrpWithTax: $('[data-product-rrp-with-tax]', $scope),
             $priceWithoutTax: $('[data-product-price-without-tax]', $scope),
-            $rrpWithoutTax: $('[data-product-rrp-without-tax]', $scope),
+            rrpWithTax: {
+                $div: $('.rrp-price--withTax', $scope),
+                $span: $('[data-product-rrp-with-tax]', $scope),
+            },
+            rrpWithoutTax: {
+                $div: $('.rrp-price--withoutTax', $scope),
+                $span: $('[data-product-rrp-price-without-tax]', $scope),
+            },
+            nonSaleWithPrice: {
+                $div: $('.non-sale-price---withTax', $scope),
+                $span: $('[data-product-non-sale-price-with-tax]', $scope),
+            },
+            nonSaleWithoutPrice: {
+                $div: $('.non-sale-price---withoutTax', $scope),
+                $span: $('[data-product-non-sale-price-without-tax]', $scope),
+            },
+            priceSaved: {
+                $div: $('.price-section--saving', $scope),
+                $span: $('[data-product-price-saved]', $scope),
+            },
+            priceNowLabel: {
+                $span: $('.price-now-label', $scope),
+            },
             $weight: $('.productView-info [data-product-weight]', $scope),
             $increments: $('.form-field--increments :input', $scope),
             $addToCart: $('#form-action-addToCart', $scope),
@@ -327,10 +352,25 @@ export default class ProductDetails {
     }
 
     /**
+     * Hide the pricing elements that will show up only when the price exists in API
+     * @param viewModel
+     */
+    clearPricingNotFound(viewModel) {
+        viewModel.rrpWithTax.$div.hide();
+        viewModel.rrpWithoutTax.$div.hide();
+        viewModel.nonSaleWithPrice.$div.hide();
+        viewModel.nonSaleWithoutPrice.$div.hide();
+        viewModel.priceSaved.$div.hide();
+        viewModel.priceNowLabel.$span.hide();
+    }
+
+    /**
      * Update the view of price, messages, SKU and stock options when a product option changes
      * @param  {Object} data Product attribute data
      */
     updatePriceView(viewModel, price) {
+        this.clearPricingNotFound(viewModel);
+
         if (price.with_tax) {
             viewModel.$priceWithTax.html(price.with_tax.formatted);
         }
@@ -340,11 +380,30 @@ export default class ProductDetails {
         }
 
         if (price.rrp_with_tax) {
-            viewModel.$rrpWithTax.html(price.rrp_with_tax.formatted);
+            viewModel.rrpWithTax.$div.show();
+            viewModel.rrpWithTax.$span.html(price.rrp_with_tax.formatted);
         }
 
         if (price.rrp_without_tax) {
-            viewModel.$rrpWithoutTax.html(price.rrp_without_tax.formatted);
+            viewModel.rrpWithoutTax.$div.show();
+            viewModel.rrpWithoutTax.$span.html(price.rrp_without_tax.formatted);
+        }
+
+        if (price.saved) {
+            viewModel.priceSaved.$div.show();
+            viewModel.priceSaved.$span.html(price.saved.formatted);
+        }
+
+        if (price.non_sale_price_with_tax) {
+            viewModel.nonSaleWithPrice.$div.show();
+            viewModel.priceNowLabel.$span.show();
+            viewModel.nonSaleWithPrice.$span.html(price.non_sale_price_with_tax.formatted);
+        }
+
+        if (price.non_sale_price_without_tax) {
+            viewModel.nonSaleWithoutPrice.$div.show();
+            viewModel.priceNowLabel.$span.show();
+            viewModel.nonSaleWithoutPrice.$span.html(price.non_sale_price_without_tax.formatted);
         }
     }
 
@@ -388,18 +447,24 @@ export default class ProductDetails {
             viewModel.stock.$input.text(data.stock);
         }
 
+        this.updateDefaultAttributesForOOS(data);
+
+        // If Bulk Pricing rendered HTML is available
+        if (data.bulk_discount_rates && content) {
+            viewModel.$bulkPricing.html(content);
+        } else if (typeof (data.bulk_discount_rates) !== 'undefined') {
+            viewModel.$bulkPricing.html('');
+        }
+    }
+
+    updateDefaultAttributesForOOS(data) {
+        const viewModel = this.getViewModel(this.$scope);
         if (!data.purchasable || !data.instock) {
             viewModel.$addToCart.prop('disabled', true);
             viewModel.$increments.prop('disabled', true);
         } else {
             viewModel.$addToCart.prop('disabled', false);
             viewModel.$increments.prop('disabled', false);
-        }
-        // If Bulk Pricing rendered HTML is available
-        if (data.bulk_discount_rates && content) {
-            viewModel.$bulkPricing.html(content);
-        } else if (typeof (data.bulk_discount_rates) !== 'undefined') {
-            viewModel.$bulkPricing.html('');
         }
     }
 

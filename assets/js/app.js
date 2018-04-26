@@ -28,7 +28,7 @@ const pageClasses = {
     blog: () => import('./theme/blog'),
     blog_post: () => import('./theme/blog'),
     brand: () => import('./theme/brand'),
-    brands: () => import('./theme/brand'),
+    brands: () => import('./theme/brands'),
     cart: () => import('./theme/cart'),
     category: () => import('./theme/category'),
     checkout: () => import('./theme/checkout'),
@@ -59,7 +59,7 @@ const pageClasses = {
  * @returns {*}
  */
 window.stencilBootstrap = function stencilBootstrap(pageType, contextJSON = null, loadGlobal = true) {
-    const context = JSON.parse(contextJSON || {});
+    const context = JSON.parse(contextJSON || '{}');
 
     return {
         load() {
