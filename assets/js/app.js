@@ -31,6 +31,7 @@ const pageClasses = {
     brands: () => import('./theme/brands'),
     cart: () => import('./theme/cart'),
     category: () => import('./theme/category'),
+    checkout: () => import('../../node_modules/@bigcommerce/checkout-sdk-example/dist/main'),
     compare: () => import('./theme/compare'),
     page_contact_form: () => import('./theme/contact-us'),
     error: () => import('./theme/errors'),
